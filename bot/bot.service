@@ -1,0 +1,16 @@
+[Unit]
+Description=Breathing Telegram Bot
+After=network.target
+
+[Service]
+# Имя пользователя на сервере (замените root на вашего)
+User=root
+# Папка где лежит бот (теперь в папке bot)
+WorkingDirectory=/root/breathing-app/bot
+# Команда запуска (теперь просто bot.py, так как мы в рабочей папке)
+ExecStart=/usr/bin/python3 /root/breathing-app/bot/bot.py
+# Перезапуск при падении
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
