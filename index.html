@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>Breathing — Дыхательные практики</title>
+    <meta name="description"
+        content="Минималистичное приложение для дыхательных практик. Снижение стресса, улучшение сна и концентрации за 1-5 минут.">
+
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="background-mesh">
+        <div class="mesh-orb orb-1"></div>
+        <div class="mesh-orb orb-2"></div>
+        <div class="mesh-orb orb-3"></div>
+    </div>
+
+    <div id="app">
+
+        <!-- ========== ГЛАВНЫЙ ЭКРАН ========== -->
+        <section id="screen-home" class="screen active">
+            <div class="home-content">
+                <div class="logo">
+                    <div class="logo-circle"></div>
+                </div>
+                <h1>Breathing</h1>
+                <p class="tagline">Вдох. Выдох. Спокойствие.</p>
+
+                <div class="modes-grid">
+                    <button class="mode-btn" data-mode="sleep">
+                        <span class="mode-icon">🌙</span>
+                        <span class="mode-name">Сон</span>
+                    </button>
+                    <button class="mode-btn" data-mode="stress">
+                        <span class="mode-icon">🧘</span>
+                        <span class="mode-name">Стресс</span>
+                    </button>
+                    <button class="mode-btn" data-mode="focus">
+                        <span class="mode-icon">🎯</span>
+                        <span class="mode-name">Фокус</span>
+                    </button>
+                    <button class="mode-btn" data-mode="energy">
+                        <span class="mode-icon">⚡</span>
+                        <span class="mode-name">Энергия</span>
+                    </button>
+                    <button class="mode-btn mode-btn-wide" data-mode="quick">
+                        <span class="mode-icon">⏱️</span>
+                        <span class="mode-name">Быстро (1 мин)</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== ЭКРАН ВЫБОРА ТЕХНИКИ ========== -->
+        <section id="screen-techniques" class="screen">
+            <header class="screen-header">
+                <button class="back-btn" id="back-to-home">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <h2 id="mode-title">Выбор техники</h2>
+            </header>
+
+            <div class="techniques-list" id="techniques-list">
+                <!-- Техники будут добавлены через JS -->
+            </div>
+        </section>
+
+        <!-- ========== ЭКРАН ПРАКТИКИ ========== -->
+        <section id="screen-practice" class="screen">
+            <header class="screen-header">
+                <button class="back-btn" id="back-to-techniques">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <h2 id="technique-title">Практика</h2>
+                <button class="icon-btn sound-toggle" id="sound-toggle">
+                    <span class="sound-icon">🔇</span>
+                </button>
+            </header>
+
+            <!-- Выбор длительности -->
+            <div class="duration-selector" id="duration-selector">
+                <p>Выберите длительность:</p>
+                <div class="duration-buttons">
+                    <button class="duration-btn active" data-duration="60">1 мин</button>
+                    <button class="duration-btn" data-duration="180">3 мин</button>
+                    <button class="duration-btn" data-duration="300">5 мин</button>
+                    <button class="duration-btn" data-duration="600">10 мин</button>
+                </div>
+                <button class="start-btn" id="start-practice">Начать</button>
+            </div>
+
+            <!-- Визуализация дыхания -->
+            <div class="practice-area" id="practice-area">
+                <div class="breath-container">
+                    <div class="breath-circle" id="breath-circle">
+                        <div class="breath-inner">
+                            <span class="phase-text" id="phase-text">Вдох</span>
+                            <span class="phase-timer" id="phase-timer">4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="practice-info">
+                    <div class="total-timer" id="total-timer">1:00</div>
+                    <p class="timer-label">осталось</p>
+                </div>
+
+                <div class="practice-controls">
+                    <button class="control-btn" id="pause-btn">
+                        <svg class="icon-pause" width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="4" width="4" height="16" rx="1" />
+                            <rect x="14" y="4" width="4" height="16" rx="1" />
+                        </svg>
+                        <svg class="icon-play hidden" width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
+                    </button>
+                    <button class="control-btn control-btn-stop" id="stop-btn">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="6" width="12" height="12" rx="2" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Экран завершения -->
+            <div class="completion-screen hidden" id="completion-screen">
+                <div class="completion-content">
+                    <div class="completion-icon">✨</div>
+                    <h3>Отлично!</h3>
+                    <p>Вы завершили практику</p>
+                    <button class="start-btn" id="done-btn">Готово</button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="audio.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

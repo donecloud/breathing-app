@@ -1,0 +1,214 @@
+{
+  "techniques": [
+    {
+      "id": "box",
+      "name": "Квадратное дыхание",
+      "description": "4-4-4-4 — баланс и спокойствие",
+      "phases": [
+        {
+          "name": "Вдох",
+          "duration": 4,
+          "type": "inhale"
+        },
+        {
+          "name": "Задержка",
+          "duration": 4,
+          "type": "hold"
+        },
+        {
+          "name": "Выдох",
+          "duration": 4,
+          "type": "exhale"
+        },
+        {
+          "name": "Задержка",
+          "duration": 4,
+          "type": "hold"
+        }
+      ],
+      "effects": [
+        "stress",
+        "focus"
+      ],
+      "totalCycle": 16
+    },
+    {
+      "id": "478",
+      "name": "Техника 4-7-8",
+      "description": "Глубокое расслабление для сна",
+      "phases": [
+        {
+          "name": "Вдох",
+          "duration": 4,
+          "type": "inhale"
+        },
+        {
+          "name": "Задержка",
+          "duration": 7,
+          "type": "hold"
+        },
+        {
+          "name": "Выдох",
+          "duration": 8,
+          "type": "exhale"
+        }
+      ],
+      "effects": [
+        "sleep"
+      ],
+      "totalCycle": 19
+    },
+    {
+      "id": "physiological",
+      "name": "Физиологический вздох",
+      "description": "Двойной вдох + длинный выдох",
+      "phases": [
+        {
+          "name": "Вдох",
+          "duration": 2,
+          "type": "inhale"
+        },
+        {
+          "name": "Довдох",
+          "duration": 1,
+          "type": "inhale"
+        },
+        {
+          "name": "Выдох",
+          "duration": 6,
+          "type": "exhale"
+        }
+      ],
+      "effects": [
+        "stress",
+        "quick"
+      ],
+      "totalCycle": 9
+    },
+    {
+      "id": "coherent",
+      "name": "Когерентное 5/5",
+      "description": "Равномерное дыхание для баланса",
+      "phases": [
+        {
+          "name": "Вдох",
+          "duration": 5,
+          "type": "inhale"
+        },
+        {
+          "name": "Выдох",
+          "duration": 5,
+          "type": "exhale"
+        }
+      ],
+      "effects": [
+        "energy",
+        "focus"
+      ],
+      "totalCycle": 10
+    },
+    {
+      "id": "relax48",
+      "name": "Вдох 4 → Выдох 8",
+      "description": "Удлинённый выдох для расслабления",
+      "phases": [
+        {
+          "name": "Вдох",
+          "duration": 4,
+          "type": "inhale"
+        },
+        {
+          "name": "Выдох",
+          "duration": 8,
+          "type": "exhale"
+        }
+      ],
+      "effects": [
+        "sleep",
+        "stress"
+      ],
+      "totalCycle": 12
+    },
+    {
+      "id": "wave",
+      "name": "Волновое дыхание",
+      "description": "Плавное нарастание и спад",
+      "phases": [
+        {
+          "name": "Вдох",
+          "duration": 6,
+          "type": "inhale"
+        },
+        {
+          "name": "Пауза",
+          "duration": 2,
+          "type": "hold"
+        },
+        {
+          "name": "Выдох",
+          "duration": 6,
+          "type": "exhale"
+        },
+        {
+          "name": "Пауза",
+          "duration": 2,
+          "type": "hold"
+        }
+      ],
+      "effects": [
+        "focus",
+        "energy"
+      ],
+      "totalCycle": 16
+    }
+  ],
+  "modes": {
+    "sleep": {
+      "name": "Сон",
+      "icon": "🌙",
+      "techniques": [
+        "478",
+        "relax48"
+      ]
+    },
+    "stress": {
+      "name": "Стресс",
+      "icon": "🧘",
+      "techniques": [
+        "box",
+        "physiological",
+        "relax48"
+      ]
+    },
+    "focus": {
+      "name": "Фокус",
+      "icon": "🎯",
+      "techniques": [
+        "box",
+        "coherent",
+        "wave"
+      ]
+    },
+    "energy": {
+      "name": "Энергия",
+      "icon": "⚡",
+      "techniques": [
+        "coherent",
+        "wave"
+      ]
+    },
+    "quick": {
+      "name": "Быстро",
+      "icon": "⏱️",
+      "techniques": [
+        "physiological"
+      ]
+    }
+  },
+  "durations": [
+    60,
+    180,
+    300,
+    600
+  ]
+}
