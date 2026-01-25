@@ -172,7 +172,7 @@ apt install python3 python3-pip git -y
 
 **2. Скачивание бота**
 ```bash
-# Клонируем репозиторий (замените ссылку на свою!)
+# Клонируем ваш репозиторий
 git clone https://github.com/donecloud/breathing-app.git
 
 # Заходим в папку проекта
