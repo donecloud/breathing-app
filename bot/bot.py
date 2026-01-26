@@ -49,8 +49,8 @@ class NewsState(StatesGroup):
 def get_main_keyboard():
     # Главное меню (Reply - кнопки под строкой ввода)
     kb = [
-        [KeyboardButton(text="🧘 Открыть приложение", web_app=types.WebAppInfo(url=WEBAPP_URL))],
-        [KeyboardButton(text="⏰ Напоминания"), KeyboardButton(text="💬 Написать отзыв")]
+        [KeyboardButton(text="🧘 Начать практику", web_app=types.WebAppInfo(url=WEBAPP_URL))],
+        [KeyboardButton(text="⏰ Мои напоминания"), KeyboardButton(text="💌 Написать создателю")]
     ]
     return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
 
@@ -84,8 +84,9 @@ async def cmd_start(message: types.Message):
     
     await message.answer(
         f"Привет, {message.from_user.first_name}! 🌿\n\n"
-        "Я бот приложения <b>Breathing</b>.\n"
-        "Используйте меню внизу, чтобы открыть приложение, настроить напоминания или связаться со мной.",
+        "<b>Рад, что ты здесь. 🤍</b>\n\n"
+        "В суете дня легко забыть о самом главном — о дыхании. Я здесь, чтобы помочь тебе вовремя сделать паузу и вернуться к себе.\n\n"
+        "Нажми кнопку ниже, чтобы начать практику, или настрой напоминания, и я сам позову тебя в нужный момент.",
         reply_markup=get_main_keyboard(),
         parse_mode="HTML"
     )
@@ -158,10 +159,10 @@ async def cancel_news(callback: types.CallbackQuery, state: FSMContext):
 
 # --- ЛОГИКА ОТЗЫВОВ ---
 
-@dp.message(F.text == "💬 Написать отзыв")
+@dp.message(F.text == "💌 Написать создателю")
 async def start_feedback(message: types.Message, state: FSMContext):
     await message.answer(
-        "Напишите ваше сообщение (отзыв, идею или вопрос), и я передам его разработчику:",
+        "Напиши своё сообщение (отзыв, идею или вопрос), и я сразу передам его разработчику 📨",
         reply_markup=get_cancel_keyboard()
     )
     await state.set_state(FeedbackState.waiting_for_text)
@@ -176,7 +177,10 @@ async def process_feedback(message: types.Message, state: FSMContext):
                 f"📩 <b>Новый отзыв!</b>\nОт: {message.from_user.full_name} (@{message.from_user.username})\n\n{message.text}",
                 parse_mode="HTML"
             )
-            await message.answer("✅ Сообщение отправлено! Спасибо за обратную связь.", reply_markup=get_main_keyboard())
+            await message.answer(
+                "📨 <b>Твое послание отправлено!</b>\n\nСпасибо, что делишься мыслями. Благодаря тебе Breathing становится лучше. 🤍", 
+                reply_markup=get_main_keyboard()
+            )
         except Exception as e:
             logging.error(f"Failed to send feedback: {e}")
             await message.answer("⚠️ Произошла ошибка при отправке.", reply_markup=get_main_keyboard())
@@ -187,10 +191,10 @@ async def process_feedback(message: types.Message, state: FSMContext):
 
 # --- ЛОГИКА НАПОМИНАНИЙ ---
 
-@dp.message(F.text == "⏰ Напоминания")
+@dp.message(F.text == "⏰ Мои напоминания")
 async def show_reminders_menu(message: types.Message):
     await message.answer(
-        "Когда вам напоминать о практике дыхания?",
+        "Когда тебе напомнить о практике дыхания? 🕰",
         reply_markup=get_reminders_keyboard()
     )
 
@@ -216,7 +220,7 @@ async def process_time_selection(callback: types.CallbackQuery, state: FSMContex
     # Если выбрано готовое время (08:00, etc)
     time_str = action
     await database.set_reminder(callback.from_user.id, time_str)
-    await callback.message.edit_text(f"✅ Готово! Буду напоминать каждый день в <b>{time_str}</b>.", parse_mode="HTML")
+    await callback.message.edit_text(f"✅ Договорились! Буду ждать тебя каждый день в <b>{time_str}</b>. 🌿", parse_mode="HTML")
     await callback.answer()
 
 @dp.message(ReminderState.waiting_for_time)
@@ -226,7 +230,7 @@ async def process_custom_time(message: types.Message, state: FSMContext):
     try:
         datetime.strptime(time_str, "%H:%M")
         await database.set_reminder(message.from_user.id, time_str)
-        await message.answer(f"✅ Готово! Буду напоминать каждый день в <b>{time_str}</b>.", parse_mode="HTML", reply_markup=get_main_keyboard())
+        await message.answer(f"✅ Договорились! Буду ждать тебя каждый день в <b>{time_str}</b>. 🌿", parse_mode="HTML", reply_markup=get_main_keyboard())
         await state.clear()
     except ValueError:
         await message.answer("❌ Неверный формат. Попробуйте ещё раз (например, 09:00) или нажмите кнопку Отмена.", reply_markup=get_cancel_keyboard())
@@ -265,7 +269,7 @@ async def check_reminders():
         try:
             await bot.send_message(
                 user_id,
-                "🧘 <b>Время подышать!</b>\n\nСделайте паузу на пару минут, чтобы восстановить силы.",
+                f"✨ <b>Маленькая пауза для себя</b>\n\nДавай отвлечемся всего на пару минут? Глубокий вдох поможет перезагрузиться и со свежими силами продолжить день.\n\nЖду тебя в приложении 👇",
                 parse_mode="HTML",
                 reply_markup=get_main_keyboard()
             )
