@@ -243,7 +243,8 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: var(--spacing-xl) 0;
+    padding: var(--spacing-2xl) 0;
+    gap: var(--spacing-xl);
 }
 
 .logo {
@@ -278,16 +279,20 @@ body {
     font-weight: 700;
     letter-spacing: -0.02em;
     margin-bottom: var(--spacing-sm);
-    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    background: linear-gradient(135deg, #818cf8, #c4b5fd);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    filter: drop-shadow(0 0 20px rgba(129, 140, 248, 0.3));
 }
 
 .tagline {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     color: var(--text-secondary);
-    margin-bottom: var(--spacing-2xl);
+    margin-bottom: var(--spacing-xl);
+    font-weight: 300;
+    max-width: 280px;
+    line-height: 1.5;
 }
 
 /* === MODES GRID === */
@@ -296,7 +301,9 @@ body {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-md);
     width: 100%;
-    max-width: 320px;
+    gap: var(--spacing-md);
+    width: 100%;
+    max-width: 340px;
 }
 
 .mode-btn {
@@ -330,13 +337,24 @@ body {
 }
 
 .mode-icon {
-    font-size: 2rem;
+    width: 32px;
+    height: 32px;
+    stroke-width: 1.5px;
+    color: var(--accent);
+    transition: transform var(--transition-bounce), color 0.3s ease;
+}
+
+.mode-btn:hover .mode-icon {
+    transform: scale(1.1);
+    color: var(--accent-light);
+    filter: drop-shadow(0 0 8px var(--accent-glow));
 }
 
 .mode-name {
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 0.9rem;
+    font-weight: 500;
     color: var(--text-primary);
+    letter-spacing: 0.02em;
 }
 
 /* === TECHNIQUES LIST === */
@@ -569,6 +587,16 @@ body {
     box-shadow:
         0 0 90px rgba(99, 102, 241, 0.4),
         inset 0 0 50px rgba(99, 102, 241, 0.2);
+}
+
+.breath-circle.prepare {
+    border-color: var(--accent);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.breath-circle.prepare .breath-inner {
+    color: var(--accent);
+    text-shadow: none;
 }
 
 .breath-inner {

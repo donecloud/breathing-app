@@ -448,8 +448,8 @@ function updateBreathCircle() {
     circle.classList.remove('inhale', 'hold', 'exhale', 'prepare');
 
     if (practiceState.isPreparing) {
-        // Особый стиль для подготовки, если нужно. Или просто нейтральный.
-        // Можно добавить пульсацию
+        // Особый стиль для подготовки
+        circle.classList.add('prepare');
         circle.style.transform = `scale(1)`;
         return;
     }

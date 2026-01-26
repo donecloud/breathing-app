@@ -12,6 +12,9 @@
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <!-- Fonts: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,23 +43,23 @@
 
                 <div class="modes-grid">
                     <button class="mode-btn" data-mode="sleep">
-                        <span class="mode-icon">🌙</span>
+                        <i data-lucide="moon" class="mode-icon"></i>
                         <span class="mode-name">Сон</span>
                     </button>
                     <button class="mode-btn" data-mode="stress">
-                        <span class="mode-icon">🧘</span>
+                        <i data-lucide="wind" class="mode-icon"></i>
                         <span class="mode-name">Стресс</span>
                     </button>
                     <button class="mode-btn" data-mode="focus">
-                        <span class="mode-icon">🎯</span>
+                        <i data-lucide="crosshair" class="mode-icon"></i>
                         <span class="mode-name">Фокус</span>
                     </button>
                     <button class="mode-btn" data-mode="energy">
-                        <span class="mode-icon">⚡</span>
+                        <i data-lucide="zap" class="mode-icon"></i>
                         <span class="mode-name">Энергия</span>
                     </button>
                     <button class="mode-btn mode-btn-wide" data-mode="quick">
-                        <span class="mode-icon">⏱️</span>
+                        <i data-lucide="timer" class="mode-icon"></i>
                         <span class="mode-name">Быстро (1 мин)</span>
                     </button>
                 </div>
@@ -154,6 +157,9 @@
 
     <script src="audio.js"></script>
     <script src="app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 
 </html>
