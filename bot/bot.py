@@ -179,7 +179,8 @@ async def process_feedback(message: types.Message, state: FSMContext):
             )
             await message.answer(
                 "📨 <b>Твое послание отправлено!</b>\n\nСпасибо, что делишься мыслями. Благодаря тебе Breathing становится лучше. 🤍", 
-                reply_markup=get_main_keyboard()
+                reply_markup=get_main_keyboard(),
+                parse_mode="HTML"
             )
         except Exception as e:
             logging.error(f"Failed to send feedback: {e}")
