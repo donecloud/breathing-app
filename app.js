@@ -16,8 +16,11 @@ let selectedDuration = 60; // секунды
 let practiceState = {
     isRunning: false,
     isPaused: false,
+    isPreparing: false,
+    isFinishing: false,
     totalTime: 0,
     remainingTime: 0,
+    prepTime: 0,
     currentPhaseIndex: 0,
     phaseTimeRemaining: 0,
     intervalId: null,
@@ -99,7 +102,7 @@ async function requestWakeLock() {
         if ('wakeLock' in navigator) {
             wakeLock = await navigator.wakeLock.request('screen');
             console.log('Wake Lock is active');
-            
+
             wakeLock.addEventListener('release', () => {
                 console.log('Wake Lock released');
             });
@@ -322,23 +325,29 @@ function startPractice() {
     document.getElementById('duration-selector').style.display = 'none';
     document.getElementById('practice-area').classList.add('active');
 
-    // Инициализируем состояние
+    // Инициализируем состояние подготовки
     practiceState.isRunning = true;
     practiceState.isPaused = false;
+    practiceState.isPreparing = true;
+    practiceState.isFinishing = false;
+    practiceState.prepTime = 3;
+
+    // Инициализируем таймеры для самой практики (они начнутся после подготовки)
     practiceState.totalTime = selectedDuration;
     practiceState.remainingTime = selectedDuration;
     practiceState.currentPhaseIndex = 0;
     practiceState.phaseTimeRemaining = currentTechnique.phases[0].duration;
 
-    // Обновляем UI
+    // Обновляем UI для подготовки
     updatePracticeUI();
     updateBreathCircle();
 
     // Запускаем таймер
     practiceState.intervalId = setInterval(tick, 1000);
 
-    // Звук
+    // Звук старта (легкий)
     SoundManager.init();
+    hapticFeedback('light');
 
     // Блокировка экрана
     requestWakeLock();
@@ -347,12 +356,45 @@ function startPractice() {
 function tick() {
     if (practiceState.isPaused) return;
 
+    // === ФАЗА ПОДГОТОВКИ ===
+    if (practiceState.isPreparing) {
+        practiceState.prepTime--;
+
+        if (practiceState.prepTime <= 0) {
+            // Завершаем подготовку, начинаем практику
+            practiceState.isPreparing = false;
+
+            // Звук/Вибрация начала
+            hapticFeedback('medium');
+            SoundManager.playPhase(currentTechnique.phases[0].type);
+        }
+
+        updatePracticeUI();
+        updateBreathCircle();
+        return;
+    }
+
+    // === ОСНОВНАЯ ПРАКТИКА ===
+
     // Уменьшаем время фазы
     practiceState.phaseTimeRemaining--;
     practiceState.remainingTime--;
 
+    // Если время вышло, помечаем флагом, но не останавливаем
+    if (practiceState.remainingTime <= 0) {
+        practiceState.isFinishing = true;
+    }
+
     // Проверяем конец фазы
     if (practiceState.phaseTimeRemaining <= 0) {
+        // Проверяем конец практики (если время вышло И закончилась последняя фаза цикла)
+        const isLastPhase = practiceState.currentPhaseIndex === currentTechnique.phases.length - 1;
+
+        if (practiceState.isFinishing && isLastPhase) {
+            completePractice();
+            return;
+        }
+
         // Переходим к следующей фазе
         practiceState.currentPhaseIndex =
             (practiceState.currentPhaseIndex + 1) % currentTechnique.phases.length;
@@ -365,17 +407,19 @@ function tick() {
         SoundManager.playPhase(newPhase.type);
     }
 
-    // Проверяем конец практики
-    if (practiceState.remainingTime <= 0) {
-        completePractice();
-        return;
-    }
-
     updatePracticeUI();
     updateBreathCircle();
 }
 
 function updatePracticeUI() {
+    // Если подготовка
+    if (practiceState.isPreparing) {
+        document.getElementById('phase-text').textContent = "Приготовьтесь";
+        document.getElementById('phase-timer').textContent = practiceState.prepTime;
+        document.getElementById('total-timer').textContent = "0:00";
+        return;
+    }
+
     const phase = currentTechnique.phases[practiceState.currentPhaseIndex];
 
     // Обновляем текст фазы и таймер
@@ -383,8 +427,10 @@ function updatePracticeUI() {
     document.getElementById('phase-timer').textContent = practiceState.phaseTimeRemaining;
 
     // Обновляем общий таймер
-    const minutes = Math.floor(practiceState.remainingTime / 60);
-    const seconds = practiceState.remainingTime % 60;
+    // Показываем 0:00, если ушли в "дополнительное время" (graceful finish)
+    const displayTime = Math.max(0, practiceState.remainingTime);
+    const minutes = Math.floor(displayTime / 60);
+    const seconds = displayTime % 60;
     document.getElementById('total-timer').textContent =
         `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
@@ -397,16 +443,26 @@ function updatePracticeUI() {
 
 function updateBreathCircle() {
     const circle = document.getElementById('breath-circle');
-    const phase = currentTechnique.phases[practiceState.currentPhaseIndex];
 
-    // Убираем все классы фаз
-    circle.classList.remove('inhale', 'hold', 'exhale');
+    // Сброс классов
+    circle.classList.remove('inhale', 'hold', 'exhale', 'prepare');
+
+    if (practiceState.isPreparing) {
+        // Особый стиль для подготовки, если нужно. Или просто нейтральный.
+        // Можно добавить пульсацию
+        circle.style.transform = `scale(1)`;
+        return;
+    }
+
+    const phase = currentTechnique.phases[practiceState.currentPhaseIndex];
 
     // Добавляем класс текущей фазы
     circle.classList.add(phase.type);
 
     // Анимация размера
     const phaseDuration = phase.duration;
+    // Корректируем прогресс, чтобы он был плавным (phaseTimeRemaining меняется дискретно)
+    // Для большей плавности можно добавить CSS transition на transform, что уже есть (0.1s linear)
     const progress = 1 - (practiceState.phaseTimeRemaining / phaseDuration);
 
     let scale = 1;
@@ -446,8 +502,11 @@ function resetPractice() {
     practiceState = {
         isRunning: false,
         isPaused: false,
+        isPreparing: false,
+        isFinishing: false,
         totalTime: 0,
         remainingTime: 0,
+        prepTime: 0,
         currentPhaseIndex: 0,
         phaseTimeRemaining: 0,
         intervalId: null,
