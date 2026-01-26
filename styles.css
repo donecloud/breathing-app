@@ -243,12 +243,12 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: var(--spacing-2xl) 0;
-    gap: var(--spacing-xl);
+    padding: var(--spacing-lg) 0;
+    gap: var(--spacing-lg);
 }
 
 .logo {
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
 }
 
 .logo-circle {
@@ -289,7 +289,7 @@ body {
 .tagline {
     font-size: 1.15rem;
     color: var(--text-secondary);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
     font-weight: 300;
     max-width: 280px;
     line-height: 1.5;
