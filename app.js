@@ -575,10 +575,10 @@ function initEventListeners() {
     // Sound Toggle
     document.getElementById('sound-toggle').addEventListener('click', () => {
         const isMuted = SoundManager.toggleSound();
-        
+
         const iconOn = document.querySelector('.sound-icon-on');
         const iconOff = document.querySelector('.sound-icon-off');
-        
+
         if (iconOn && iconOff) {
             iconOn.classList.toggle('hidden', isMuted);
             iconOff.classList.toggle('hidden', !isMuted);
@@ -616,11 +616,22 @@ async function init() {
     const isMuted = SoundManager.isMuted;
     const iconOn = document.querySelector('.sound-icon-on');
     const iconOff = document.querySelector('.sound-icon-off');
-    
+
     if (iconOn && iconOff) {
         iconOn.classList.toggle('hidden', isMuted);
         iconOff.classList.toggle('hidden', !isMuted);
     }
+
+    // Start ambient music on first interaction (browser policy)
+    const startAudio = () => {
+        SoundManager.init();
+        SoundManager.startAmbient();
+        document.removeEventListener('click', startAudio);
+        document.removeEventListener('touchstart', startAudio);
+    };
+
+    document.addEventListener('click', startAudio);
+    document.addEventListener('touchstart', startAudio);
 
     console.log('App ready!');
 }
