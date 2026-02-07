@@ -364,7 +364,8 @@ body {
     gap: var(--spacing-md);
     flex: 1;
     overflow-y: auto;
-    padding-bottom: var(--spacing-xl);
+    padding: var(--spacing-sm); /* Prevent clipping of hover effects */
+    margin: 0 calc(var(--spacing-sm) * -1); /* Compensate visual alignment if needed */
 }
 
 .technique-card {

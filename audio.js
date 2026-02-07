@@ -23,114 +23,15 @@ const SoundManager = {
         }
     },
 
-    // Ambient Sound Logic
-    ambientNodes: [],
-    ambientStarted: false,
-
-    startAmbient() {
-        if (this.ambientStarted || !this.audioContext) return;
-
-        // Resume context if suspended (browser policy)
-        if (this.audioContext.state === 'suspended') {
-            this.audioContext.resume().then(() => {
-                this.createAmbientDrone();
-            });
-        } else {
-            this.createAmbientDrone();
-        }
-
-        this.ambientStarted = true;
-    },
-
-    createAmbientDrone() {
-        if (this.isMuted) return; // Don't create if muted (will create on unmute)
-
-        const now = this.audioContext.currentTime;
-        this.stopAmbientNodes(); // Clear existing if any
-
-        // Configuration for "Magical Atmosphere"
-        // Root: F#3 (approx 185Hz) - associated with heart/earth
-        const frequencies = [185.00, 186.50, 277.18]; // Root, Detuned Root (Binaural), Perfect Fifth (C#4)
-
-        frequencies.forEach((freq, i) => {
-            const osc = this.audioContext.createOscillator();
-            const gain = this.audioContext.createGain();
-            const filter = this.audioContext.createBiquadFilter();
-
-            // Oscillator
-            osc.frequency.value = freq;
-            osc.type = i === 2 ? 'triangle' : 'sine'; // Fifth is triangle for warmth
-
-            // Filter (Lowpass to smooth sound)
-            filter.type = 'lowpass';
-            filter.frequency.value = 800;
-
-            // Gain (Volume)
-            // Lower volume for background
-            const volume = i === 2 ? 0.05 : 0.1;
-
-            gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(volume, now + 5); // 5s fade in
-
-            // Connections
-            osc.connect(filter);
-            filter.connect(gain);
-            gain.connect(this.masterGain);
-
-            osc.start(now);
-
-            // LFO for movement (subtle volume oscillation)
-            const lfo = this.audioContext.createOscillator();
-            const lfoGain = this.audioContext.createGain();
-            lfo.frequency.value = 0.1 + (i * 0.05); // Different slow speeds
-            lfoGain.gain.value = volume * 0.3; // Modulation depth
-            lfo.connect(lfoGain);
-            lfoGain.connect(gain.gain);
-            lfo.start(now);
-
-            this.ambientNodes.push({ osc, gain, lfo, lfoGain, filter });
-        });
-    },
-
-    stopAmbientNodes() {
-        if (this.ambientNodes.length > 0) {
-            const now = this.audioContext.currentTime;
-            this.ambientNodes.forEach(node => {
-                try {
-                    // Fade out
-                    node.gain.gain.cancelScheduledValues(now);
-                    node.gain.gain.setValueAtTime(node.gain.gain.value, now);
-                    node.gain.gain.linearRampToValueAtTime(0, now + 2);
-
-                    node.osc.stop(now + 2.1);
-                    node.lfo.stop(now + 2.1);
-                } catch (e) { /* ignore */ }
-            });
-            this.ambientNodes = [];
-        }
-    },
-
     toggleSound() {
         this.isMuted = !this.isMuted;
         this.updateMuteState();
-
-        // Handle ambient immediately
-        if (this.isMuted) {
-            this.stopAmbientNodes();
-        } else {
-            if (this.ambientStarted) {
-                this.createAmbientDrone();
-            }
-        }
-
         return this.isMuted;
     },
 
     updateMuteState() {
         if (this.masterGain) {
-            // Master gain affects everything, but we also manually handle ambient nodes
-            // to save CPU when muted
-            this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : 0.5, this.audioContext.currentTime, 0.1);
+            this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.5, this.audioContext.currentTime);
         }
     },
 

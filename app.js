@@ -622,17 +622,6 @@ async function init() {
         iconOff.classList.toggle('hidden', !isMuted);
     }
 
-    // Start ambient music on first interaction (browser policy)
-    const startAudio = () => {
-        SoundManager.init();
-        SoundManager.startAmbient();
-        document.removeEventListener('click', startAudio);
-        document.removeEventListener('touchstart', startAudio);
-    };
-
-    document.addEventListener('click', startAudio);
-    document.addEventListener('touchstart', startAudio);
-
     console.log('App ready!');
 }
 
