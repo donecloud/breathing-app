@@ -575,8 +575,14 @@ function initEventListeners() {
     // Sound Toggle
     document.getElementById('sound-toggle').addEventListener('click', () => {
         const isMuted = SoundManager.toggleSound();
-        const iconInfo = document.querySelector('#sound-toggle .sound-icon');
-        iconInfo.textContent = isMuted ? '🔇' : '🔊';
+        
+        const iconOn = document.querySelector('.sound-icon-on');
+        const iconOff = document.querySelector('.sound-icon-off');
+        
+        if (iconOn && iconOff) {
+            iconOn.classList.toggle('hidden', isMuted);
+            iconOff.classList.toggle('hidden', !isMuted);
+        }
 
         const btn = document.getElementById('sound-toggle');
         btn.classList.toggle('active', !isMuted);
@@ -607,9 +613,13 @@ async function init() {
     initEventListeners();
 
     // Check initial mute state for UI
-    const iconInfo = document.querySelector('#sound-toggle .sound-icon');
-    if (iconInfo) {
-        iconInfo.textContent = SoundManager.isMuted ? '🔇' : '🔊';
+    const isMuted = SoundManager.isMuted;
+    const iconOn = document.querySelector('.sound-icon-on');
+    const iconOff = document.querySelector('.sound-icon-off');
+    
+    if (iconOn && iconOff) {
+        iconOn.classList.toggle('hidden', isMuted);
+        iconOff.classList.toggle('hidden', !isMuted);
     }
 
     console.log('App ready!');

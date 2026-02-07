@@ -5,7 +5,7 @@
 
 const SoundManager = {
     audioContext: null,
-    isMuted: true, // Default to muted
+    isMuted: false, // Default to unmuted
     masterGain: null,
 
     // Initialize Audio Context (lazy load on user interaction)
