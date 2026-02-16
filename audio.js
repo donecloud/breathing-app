@@ -7,6 +7,7 @@ const SoundManager = {
     audioContext: null,
     isMuted: false, // Default to unmuted
     masterGain: null,
+    compressor: null,
 
     // Initialize Audio Context (lazy load on user interaction)
     init() {
@@ -16,7 +17,15 @@ const SoundManager = {
 
             // Create Master Gain Node for global volume control
             this.masterGain = this.audioContext.createGain();
-            this.masterGain.connect(this.audioContext.destination);
+            this.compressor = this.audioContext.createDynamicsCompressor();
+            this.compressor.threshold.setValueAtTime(-24, this.audioContext.currentTime);
+            this.compressor.knee.setValueAtTime(20, this.audioContext.currentTime);
+            this.compressor.ratio.setValueAtTime(3, this.audioContext.currentTime);
+            this.compressor.attack.setValueAtTime(0.003, this.audioContext.currentTime);
+            this.compressor.release.setValueAtTime(0.25, this.audioContext.currentTime);
+
+            this.masterGain.connect(this.compressor);
+            this.compressor.connect(this.audioContext.destination);
             this.updateMuteState();
         } else if (this.audioContext.state === 'suspended') {
             this.audioContext.resume();
@@ -31,8 +40,45 @@ const SoundManager = {
 
     updateMuteState() {
         if (this.masterGain) {
-            this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.5, this.audioContext.currentTime);
+            this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.32, this.audioContext.currentTime);
         }
+    },
+
+    playPianoTone(freq, startTime, duration = 0.9, velocity = 0.22) {
+        if (this.isMuted || !this.audioContext || !this.masterGain) return;
+
+        const now = this.audioContext.currentTime;
+        const when = Math.max(startTime, now);
+
+        const bodyOsc = this.audioContext.createOscillator();
+        const attackOsc = this.audioContext.createOscillator();
+        const toneGain = this.audioContext.createGain();
+        const filter = this.audioContext.createBiquadFilter();
+
+        bodyOsc.type = 'triangle';
+        bodyOsc.frequency.setValueAtTime(freq, when);
+
+        attackOsc.type = 'sine';
+        attackOsc.frequency.setValueAtTime(freq * 2, when);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(2200, when);
+        filter.Q.setValueAtTime(0.8, when);
+
+        toneGain.gain.setValueAtTime(0.0001, when);
+        toneGain.gain.exponentialRampToValueAtTime(Math.max(velocity, 0.0001), when + 0.012);
+        toneGain.gain.exponentialRampToValueAtTime(Math.max(velocity * 0.35, 0.0001), when + 0.1);
+        toneGain.gain.exponentialRampToValueAtTime(0.0001, when + duration);
+
+        bodyOsc.connect(filter);
+        attackOsc.connect(filter);
+        filter.connect(toneGain);
+        toneGain.connect(this.masterGain);
+
+        bodyOsc.start(when);
+        attackOsc.start(when);
+        bodyOsc.stop(when + duration + 0.05);
+        attackOsc.stop(when + Math.min(duration * 0.35, 0.25));
     },
 
     // Play a tone based on phase type
@@ -41,60 +87,26 @@ const SoundManager = {
 
         const now = this.audioContext.currentTime;
 
-        // Oscillator configuration
-        const osc = this.audioContext.createOscillator();
-        const gain = this.audioContext.createGain();
-
-        osc.connect(gain);
-        gain.connect(this.masterGain);
-
-        // Sound Design "Singing Bowl"
-        // Soft attack, long release, rich harmonics
-
-        let freq = 432; // Default (Inhale)
-        let duration = 2.5;
+        // Notes tuned for a soft piano-like feel
+        let freq = 523.25; // C5
+        let duration = 0.85;
+        let velocity = 0.2;
 
         switch (type) {
             case 'inhale':
-                freq = 432; // A4 (ish) - Uplifting
+                freq = 523.25; // C5
                 break;
             case 'exhale':
-                freq = 324; // Lower harmonic - Grounding
+                freq = 392.0; // G4
                 break;
             case 'hold':
-                freq = 540; // Higher harmonic - Suspended
-                duration = 1.0; // Shorter
+                freq = 659.25; // E5
+                duration = 0.55;
+                velocity = 0.16;
                 break;
         }
 
-        osc.frequency.setValueAtTime(freq, now);
-        osc.type = 'sine';
-
-        // Envelope (Attack - Decay - Sustain - Release)
-        gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.6, now + 0.1); // Attack
-        gain.gain.exponentialRampToValueAtTime(0.01, now + duration); // Long Release
-
-        osc.start(now);
-        osc.stop(now + duration);
-
-        // Optional: Add a second oscillator for richness (overtone)
-        if (type !== 'hold') {
-            const osc2 = this.audioContext.createOscillator();
-            const gain2 = this.audioContext.createGain();
-            osc2.connect(gain2);
-            gain2.connect(this.masterGain);
-
-            osc2.frequency.setValueAtTime(freq * 1.5, now); // Fifth
-            osc2.type = 'sine';
-
-            gain2.gain.setValueAtTime(0, now);
-            gain2.gain.linearRampToValueAtTime(0.2, now + 0.1);
-            gain2.gain.exponentialRampToValueAtTime(0.01, now + duration - 0.5);
-
-            osc2.start(now);
-            osc2.stop(now + duration);
-        }
+        this.playPianoTone(freq, now, duration, velocity);
     },
 
     // Play completion chord
@@ -102,26 +114,9 @@ const SoundManager = {
         if (this.isMuted || !this.audioContext) return;
 
         const now = this.audioContext.currentTime;
-        const notes = [432, 540, 648]; // Major triad logic
-
+        const notes = [523.25, 659.25, 783.99, 1046.5]; // C major arpeggio
         notes.forEach((freq, index) => {
-            const osc = this.audioContext.createOscillator();
-            const gain = this.audioContext.createGain();
-
-            osc.connect(gain);
-            gain.connect(this.masterGain);
-
-            osc.frequency.setValueAtTime(freq, now);
-
-            // Staggered entry
-            const offset = index * 0.1;
-
-            gain.gain.setValueAtTime(0, now + offset);
-            gain.gain.linearRampToValueAtTime(0.3, now + offset + 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 4.0);
-
-            osc.start(now + offset);
-            osc.stop(now + offset + 4.0);
+            this.playPianoTone(freq, now + index * 0.14, 1.4, 0.18);
         });
     }
 };
